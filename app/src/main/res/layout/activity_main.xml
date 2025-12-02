@@ -1,72 +1,72 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
-    android:orientation="vertical"
-    android:background="#E6F0FF">
+    android:background="#E6F0FF"
+    android:orientation="vertical">
 
     <!-- 标题栏（北航特色） -->
-<!--    <RelativeLayout-->
-<!--        android:layout_width="match_parent"-->
-<!--        android:layout_height="64dp"-->
-<!--        android:background="#0066B3">-->
-<!--        <TextView-->
-<!--            android:layout_width="wrap_content"-->
-<!--            android:layout_height="wrap_content"-->
-<!--            android:layout_centerInParent="true"-->
-<!--            android:text="北航活动通"-->
-<!--            android:textColor="#FFFFFF"-->
-<!--            android:textSize="20sp"-->
-<!--            android:textStyle="bold" />-->
-<!--    </RelativeLayout>-->
+    <!--    <RelativeLayout-->
+    <!--        android:layout_width="match_parent"-->
+    <!--        android:layout_height="64dp"-->
+    <!--        android:background="#0066B3">-->
+    <!--        <TextView-->
+    <!--            android:layout_width="wrap_content"-->
+    <!--            android:layout_height="wrap_content"-->
+    <!--            android:layout_centerInParent="true"-->
+    <!--            android:text="北航活动通"-->
+    <!--            android:textColor="#FFFFFF"-->
+    <!--            android:textSize="20sp"-->
+    <!--            android:textStyle="bold" />-->
+    <!--    </RelativeLayout>-->
 
 
     <!-- activity_main.xml 导航条 -->
-<!--    <androidx.appcompat.widget.Toolbar-->
-<!--        android:id="@+id/toolbar"-->
-<!--        style="@style/CustomToolbar"-->
-<!--        android:title="北航活动通">-->
+    <!--    <androidx.appcompat.widget.Toolbar-->
+    <!--        android:id="@+id/toolbar"-->
+    <!--        style="@style/CustomToolbar"-->
+    <!--        android:title="北航活动通">-->
 
-<!--        &lt;!&ndash; 右侧个人中心按钮 &ndash;&gt;-->
-<!--        <ImageView-->
-<!--            android:id="@+id/iv_user_center"-->
-<!--            android:layout_width="24dp"-->
-<!--            android:layout_height="24dp"-->
-<!--            android:src="@drawable/ic_user"-->
-<!--            android:layout_gravity="end"-->
-<!--            android:contentDescription="个人中心"/>-->
-<!--    </androidx.appcompat.widget.Toolbar>-->
+    <!--        &lt;!&ndash; 右侧个人中心按钮 &ndash;&gt;-->
+    <!--        <ImageView-->
+    <!--            android:id="@+id/iv_user_center"-->
+    <!--            android:layout_width="24dp"-->
+    <!--            android:layout_height="24dp"-->
+    <!--            android:src="@drawable/ic_user"-->
+    <!--            android:layout_gravity="end"-->
+    <!--            android:contentDescription="个人中心"/>-->
+    <!--    </androidx.appcompat.widget.Toolbar>-->
 
     <!-- 导航条（全屏无缝隙） -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:minHeight="64dp"
         android:background="#0066B3"
-        android:titleTextColor="#FFFFFF"
+        android:minHeight="64dp"
         android:paddingStart="16dp"
-        android:paddingEnd="16dp"
         android:paddingTop="24dp"
-        android:paddingBottom="24dp">
+        android:paddingEnd="16dp"
+        android:paddingBottom="24dp"
+        android:titleTextColor="#FFFFFF">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_centerInParent="true"
-        android:text="北航活动通"
-        android:textColor="#FFFFFF"
-        android:textSize="20sp"
-        android:textStyle="bold" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="北航活动通"
+            android:textColor="#FFFFFF"
+            android:textSize="20sp"
+            android:textStyle="bold" />
 
-    <ImageView
-        android:id="@+id/iv_user_center"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:src="@drawable/ic_user"
-        android:layout_gravity="end"
-        android:contentDescription="个人中心"/>
+        <ImageView
+            android:id="@+id/iv_user_center"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_gravity="end"
+            android:contentDescription="个人中心"
+            android:src="@drawable/ic_user" />
 
     </androidx.appcompat.widget.Toolbar>
 
@@ -78,14 +78,68 @@
         android:layout_margin="16dp" />
 
     <!-- 新增：显示当前选中的日期 -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_tag_deyu"
+            android:background="@drawable/selector_tag_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="德育" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_tag_meiyu"
+            android:background="@drawable/selector_tag_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="美育" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_tag_laoyu"
+            android:background="@drawable/selector_tag_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="劳育" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_tag_safety"
+            android:background="@drawable/selector_tag_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="安全" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_tag_other"
+            android:background="@drawable/selector_tag_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="其他" />
+
+        <androidx.appcompat.widget.AppCompatButton
+            android:id="@+id/btn_tag_all"
+            android:background="@drawable/selector_tag_button"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="全选" />
+    </LinearLayout>
+
     <TextView
         android:id="@+id/tvCurrentDate"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginLeft="16dp"
         android:text="当前日期：2025-01-01"
-        android:textSize="16sp"
-        android:textColor="#0066B3" />
+        android:textColor="#0066B3"
+        android:textSize="16sp" />
 
     <!-- 活动列表标题 -->
     <TextView
@@ -102,8 +156,8 @@
         android:id="@+id/listView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"
-        android:layout_margin="16dp" />
+        android:layout_margin="16dp"
+        android:layout_weight="1" />
 
 
 </LinearLayout>

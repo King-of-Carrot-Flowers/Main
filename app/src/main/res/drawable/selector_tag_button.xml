@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 当按钮被选中 (selected="true") 时，使用 selected 背景 -->
+    <item android:drawable="@drawable/button_tag_selected" android:state_selected="true"/>
+    <!-- 默认情况下，使用 normal 背景 -->
+    <item android:drawable="@drawable/button_tag_normal"/>
+</selector>

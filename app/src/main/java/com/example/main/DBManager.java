@@ -165,8 +165,8 @@ public class DBManager {
                 String description = cursor.getString(5); // 第5列：description
                 String organizer = cursor.getString(6);   // 第6列：organizer
                 int maxPeople = cursor.getInt(7);         // 第7列：maxPeople
-
-                list.add(new ActivityBean(id, title, type, time, location, description, organizer, maxPeople));
+                String tag = cursor.getString(8);         // 第 8 列是 tag
+                list.add(new ActivityBean(id, title, type, time, location, description, organizer, maxPeople,tag));
             } while (cursor.moveToNext());
         }
 
@@ -177,6 +177,49 @@ public class DBManager {
         return list;
     }
 
+    public List<ActivityBean> getActivityByDateAndTag(String targetDate, String tag) {
+
+        List<ActivityBean> list = new ArrayList<>();
+
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+        String sql = "SELECT * FROM activities WHERE SUBSTR(time, 1, 10) = ?";
+        List<String> selectionArgs = new ArrayList<>();
+        selectionArgs.add(targetDate);
+
+        // 2. 增加 TAG 筛选条件
+        if (tag != null && !tag.isEmpty()) {
+            sql += " AND tag = ?";
+            selectionArgs.add(tag);
+        }
+
+        // 3. 排序
+        sql += " ORDER BY time ASC";
+
+        Cursor cursor = db.rawQuery(sql, selectionArgs.toArray(new String[0]));
+
+        // 先检查cursor是否有数据
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                // 直接用列的索引（按表创建顺序），不会返回-1
+                int id = cursor.getInt(0);                // 第0列：id
+                String title = cursor.getString(1);       // 第1列：title
+                String type = cursor.getString(2);        // 第2列：type
+                String time = cursor.getString(3);        // 第3列：time
+                String location = cursor.getString(4);    // 第4列：location
+                String description = cursor.getString(5); // 第5列：description
+                String organizer = cursor.getString(6);   // 第6列：organizer
+                int maxPeople = cursor.getInt(7);         // 第7列：maxPeople
+                String activityTag = cursor.getString(8);
+                list.add(new ActivityBean(id, title, type, time, location, description, organizer, maxPeople,activityTag));
+            } while (cursor.moveToNext());
+        }
+
+        if (cursor != null) {
+            cursor.close();
+        }
+        db.close();
+        return list;
+    }
     // 同理修复getAllActivityList方法
     public ActivityBean getActivityById(int activityId) {
         ActivityBean activityBean = null;
@@ -195,10 +238,11 @@ public class DBManager {
             String description = cursor.getString(5);
             String organizer = cursor.getString(6);
             int maxPeople = cursor.getInt(7);
+            String tag = cursor.getString(8);
 
             // 创建ActivityBean对象
             activityBean = new ActivityBean(id, title, type, time, location,
-                    description, organizer, maxPeople);
+                    description, organizer, maxPeople,tag);
         }
 
         // 关闭资源
@@ -227,8 +271,8 @@ public class DBManager {
                 String description = cursor.getString(5);
                 String organizer = cursor.getString(6);
                 int maxPeople = cursor.getInt(7);
-
-                list.add(new ActivityBean(id, title, type, time, location, description, organizer, maxPeople));
+                String tag = cursor.getString(8);
+                list.add(new ActivityBean(id, title, type, time, location, description, organizer, maxPeople,tag));
             } while (cursor.moveToNext());
         }
 
@@ -528,8 +572,8 @@ public class DBManager {
                 String description = cursor.getString(5);
                 String organizer = cursor.getString(6);
                 int maxPeople = cursor.getInt(7);
-
-                list.add(new ActivityBean(id, title, type, time, location, description, organizer, maxPeople));
+                String tag = cursor.getString(8);
+                list.add(new ActivityBean(id, title, type, time, location, description, organizer, maxPeople,tag));
             } while (cursor.moveToNext());
         }
 
@@ -561,8 +605,9 @@ public class DBManager {
                 String description = cursor.getString(5);
                 String organizer = cursor.getString(6);
                 int maxPeople = cursor.getInt(7);
+                String tag = cursor.getString(8);
 
-                list.add(new ActivityBean(id, title, type, time, location, description, organizer, maxPeople));
+                list.add(new ActivityBean(id, title, type, time, location, description, organizer, maxPeople,tag));
             } while (cursor.moveToNext());
         }
 
