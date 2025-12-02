@@ -1,42 +1,24 @@
 package com.example.main;
 
 import android.app.AlarmManager;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
-import android.widget.Toast; // 方便看提示
 
 import java.text.SimpleDateFormat;
 import java.util.Locale;
 
 public class ReminderUtils {
-    // 格式化只用于传参，不用于计算时间了
     private static final SimpleDateFormat DATE_FORMAT =
             new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
 
-    public static void setReminder(Context context, String userId, ActivityBean activity) {
-        // ================= 测试修改开始 =================
+    // 对应 ActivityReminderReceiver 中的 NOTIFICATION_ID
+    private static final int BASE_NOTIFICATION_ID = 1001;
 
-        // 1. 原有逻辑（注释掉）：解析活动时间并提前30分钟
-        /*
-        try {
-            Date activityDate = DATE_FORMAT.parse(activity.getTime());
-            if (activityDate == null) return;
-            Calendar reminderTime = Calendar.getInstance();
-            reminderTime.setTime(activityDate);
-            reminderTime.add(Calendar.MINUTE, -30);
-            if (reminderTime.before(Calendar.getInstance())) return;
-            long triggerAtMillis = reminderTime.getTimeInMillis();
-        } catch (ParseException e) {
-            e.printStackTrace();
-            return;
-        }
-        */
-
-        // 2. 测试逻辑（新增）：当前时间 + 5秒
+    public static boolean setReminder(Context context, String userId, ActivityBean activity) {
+        // 这里是测试逻辑：5秒后触发
         long triggerAtMillis = System.currentTimeMillis() + 5000;
-
-        // ================= 测试修改结束 =================
 
         Intent intent = new Intent(context, ActivityReminderReceiver.class);
         intent.putExtra("USER_ID", userId);
@@ -54,8 +36,6 @@ public class ReminderUtils {
         AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
 
         if (alarmManager != null) {
-            // 使用 RTC_WAKEUP，为了测试尽量准时，虽然是“非精确”模式，
-            // 但在App在前台运行时，5秒通常是很准的。
             alarmManager.set(
                     AlarmManager.RTC_WAKEUP,
                     triggerAtMillis,
@@ -65,9 +45,12 @@ public class ReminderUtils {
             // 弹个Toast告诉你定时器设好了，方便调试
 //            Toast.makeText(context, "已设置：5秒后触发测试通知", Toast.LENGTH_SHORT).show();
         }
+
+        return false;
     }
 
     public static void cancelReminder(Context context, int activityId) {
+        // 1. 取消定时闹钟（如果闹钟还没响，这里会阻止它响）
         Intent intent = new Intent(context, ActivityReminderReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
                 context,
@@ -82,6 +65,16 @@ public class ReminderUtils {
                 alarmManager.cancel(pendingIntent);
             }
             pendingIntent.cancel();
+        }
+
+        // 2. 【新增】移除状态栏已显示的通知（如果闹钟已经响了，这里会撤回通知）
+        NotificationManager notificationManager =
+                (NotificationManager) context.getSystemService(Context.NOTIFICATION_SERVICE);
+
+        if (notificationManager != null) {
+            // ID 计算规则必须与 ActivityReminderReceiver.java 中保持一致：
+            // notificationManager.notify(NOTIFICATION_ID + activityId, ...)
+            notificationManager.cancel(BASE_NOTIFICATION_ID + activityId);
         }
     }
 
