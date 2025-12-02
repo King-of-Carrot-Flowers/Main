@@ -1,16 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-
     <!-- ================= 权限声明 ================= -->
     <!-- 1. 发送通知权限 (Android 13+ 需要) -->
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS" /> <!-- 2. 开机自启权限 -->
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" /> <!-- 3. 震动权限 -->
+    <uses-permission android:name="android.permission.VIBRATE" />
 
-    <!-- 2. 开机自启权限 -->
-    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
-
-    <!-- 3. 震动权限 -->
-    <uses-permission android:name="android.permission.VIBRATE"/>
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <application
         android:allowBackup="true"
@@ -21,48 +18,54 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Main">
-
+        <activity
+            android:name=".RecommendActivity"
+            android:exported="false" />
         <!-- 普通页面 -->
-        <activity android:name=".RegisteredActivitiesActivity" android:exported="false" />
-        <activity android:name=".FavoriteActivitiesActivity" android:exported="false" />
-        <activity android:name=".ChangePasswordActivity" android:exported="false" />
-        <activity android:name=".UserCenterActivity" android:exported="false" />
-        <activity android:name=".DetailActivity" android:exported="false" />
-        <activity android:name=".RegisterActivity" android:exported="false" />
-
-        <!-- 入口页面：LoginActivity (保留LAUNCHER) -->
+        <activity
+            android:name=".RegisteredActivitiesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".FavoriteActivitiesActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ChangePasswordActivity"
+            android:exported="false" />
+        <activity
+            android:name=".UserCenterActivity"
+            android:exported="false" />
+        <activity
+            android:name=".DetailActivity"
+            android:exported="false" />
+        <activity
+            android:name=".RegisterActivity"
+            android:exported="false" /> <!-- 入口页面：LoginActivity (保留LAUNCHER) -->
         <activity
             android:name=".LoginActivity"
+            android:excludeFromRecents="true"
             android:exported="true"
             android:launchMode="singleTask"
-            android:taskAffinity=""
-            android:excludeFromRecents="true">
+            android:taskAffinity="">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-        </activity>
-
-        <!-- 主页面：去掉 LAUNCHER，防止双图标 -->
+        </activity> <!-- 主页面：去掉 LAUNCHER，防止双图标 -->
         <activity
             android:name=".MainActivity"
-            android:exported="false" />
-
-        <!-- ================= 广播接收器 ================= -->
+            android:exported="false" /> <!-- ================= 广播接收器 ================= -->
         <!-- 提醒接收器 -->
         <receiver
             android:name=".ActivityReminderReceiver"
-            android:exported="false"/>
-
-        <!-- 开机自启接收器 -->
+            android:exported="false" /> <!-- 开机自启接收器 -->
         <receiver
             android:name=".BootCompletedReceiver"
             android:exported="true">
             <intent-filter>
-                <action android:name="android.intent.action.BOOT_COMPLETED"/>
+                <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
-
     </application>
 
 </manifest>

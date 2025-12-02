@@ -36,7 +36,7 @@ public class UserCenterActivity extends AppCompatActivity {
         tvUsername.setText(currentUserId);
 
         // 功能列表
-        String[] functions = {"修改密码", "已收藏活动", "已报名活动"};
+        String[] functions = {"修改密码", "已收藏活动", "已报名活动", "个性化推荐"};
         ListView lvFunctions = findViewById(R.id.lv_functions);
         lvFunctions.setAdapter(new ArrayAdapter<>(this,
                 android.R.layout.simple_list_item_1, functions));
@@ -57,6 +57,12 @@ public class UserCenterActivity extends AppCompatActivity {
                 case 2:
                     // 已报名活动
                     startActivity(new Intent(this, RegisteredActivitiesActivity.class)
+                            .putExtra("USER_ID", currentUserId));
+                    break;
+
+                case 3:
+                    // 个性化推荐
+                    startActivity(new Intent(this, RecommendActivity.class)
                             .putExtra("USER_ID", currentUserId));
                     break;
             }

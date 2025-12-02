@@ -41,7 +41,9 @@ public class ReminderUtils {
                     triggerAtMillis,
                     pendingIntent
             );
-            return true;
+
+            // 弹个Toast告诉你定时器设好了，方便调试
+//            Toast.makeText(context, "已设置：5秒后触发测试通知", Toast.LENGTH_SHORT).show();
         }
 
         return false;

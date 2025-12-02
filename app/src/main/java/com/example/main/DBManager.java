@@ -570,4 +570,58 @@ public class DBManager {
         db.close();
         return list;
     }
+
+    // ----------------- AI ----------------
+    // DBManager.java
+// 获取用户已收藏/报名的活动详情（兴趣画像）
+    public List<ActivityBean> getUserInteractedActivities(String userId) {
+        List<ActivityBean> list = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String sql = "SELECT a.* FROM activities a " +
+                "JOIN (SELECT activity_id FROM favorites WHERE user_id=? " +
+                "UNION SELECT activity_id FROM registrations WHERE user_id=?) f " +
+                "ON a.id = f.activity_id";
+
+        Cursor cursor = db.rawQuery(sql, new String[]{userId, userId});
+        if (cursor.moveToFirst()) {
+            do {
+                ActivityBean bean = new ActivityBean(
+                        cursor.getInt(0), cursor.getString(1), cursor.getString(2),
+                        cursor.getString(3), cursor.getString(4), cursor.getString(5),
+                        cursor.getString(6), cursor.getInt(7)
+                );
+                list.add(bean);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return list;
+    }
+
+    // 获取用户未收藏/报名的所有活动（候选池）
+    public List<ActivityBean> getUninteractedActivities(String userId) {
+        List<ActivityBean> list = new ArrayList<>();
+        SQLiteDatabase db = dbHelper.getReadableDatabase();
+
+        String sql = "SELECT a.* FROM activities a " +
+                "LEFT JOIN favorites f ON a.id=f.activity_id AND f.user_id=? " +
+                "LEFT JOIN registrations r ON a.id=r.activity_id AND r.user_id=? " +
+                "WHERE f.activity_id IS NULL AND r.activity_id IS NULL";
+
+        Cursor cursor = db.rawQuery(sql, new String[]{userId, userId});
+        if (cursor.moveToFirst()) {
+            do {
+                ActivityBean bean = new ActivityBean(
+                        cursor.getInt(0), cursor.getString(1), cursor.getString(2),
+                        cursor.getString(3), cursor.getString(4), cursor.getString(5),
+                        cursor.getString(6), cursor.getInt(7)
+                );
+                list.add(bean);
+            } while (cursor.moveToNext());
+        }
+        cursor.close();
+        db.close();
+        return list;
+    }
 }
