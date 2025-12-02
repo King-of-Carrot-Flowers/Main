@@ -4,65 +4,69 @@ import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
+import android.widget.Toast; // 方便看提示
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
-import java.util.Date;
 import java.util.Locale;
 
 public class ReminderUtils {
-    // 活动时间格式（与数据库一致）
+    // 格式化只用于传参，不用于计算时间了
     private static final SimpleDateFormat DATE_FORMAT =
             new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
 
-    // 设置提醒（提前30分钟）
     public static void setReminder(Context context, String userId, ActivityBean activity) {
+        // ================= 测试修改开始 =================
+
+        // 1. 原有逻辑（注释掉）：解析活动时间并提前30分钟
+        /*
         try {
-            // 解析活动开始时间
             Date activityDate = DATE_FORMAT.parse(activity.getTime());
             if (activityDate == null) return;
-
-            // 计算提醒时间（提前30分钟）
             Calendar reminderTime = Calendar.getInstance();
             reminderTime.setTime(activityDate);
-            reminderTime.add(Calendar.MINUTE, -30); // 提前30分钟提醒
-
-            // 如果活动已过，不设置提醒
+            reminderTime.add(Calendar.MINUTE, -30);
             if (reminderTime.before(Calendar.getInstance())) return;
-
-            // 创建闹钟Intent
-            Intent intent = new Intent(context, ActivityReminderReceiver.class);
-            intent.putExtra("USER_ID", userId);
-            intent.putExtra("ACTIVITY_ID", activity.getId());
-            intent.putExtra("ACTIVITY_TITLE", activity.getTitle());
-            intent.putExtra("ACTIVITY_TIME", activity.getTime());
-
-            // 每个活动的PendingIntent用不同的requestCode（避免覆盖）
-            PendingIntent pendingIntent = PendingIntent.getBroadcast(
-                    context,
-                    activity.getId(), // 用活动ID作为requestCode
-                    intent,
-                    PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
-            );
-
-            // 设置闹钟
-            // 找到手机的闹钟管理器
-            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-
-            AlarmManager.AlarmClockInfo clockInfo = new AlarmManager.AlarmClockInfo(
-                    reminderTime.getTimeInMillis(),
-                    PendingIntent.getActivity(context, 0, new Intent(), PendingIntent.FLAG_IMMUTABLE)
-            );
-
-            alarmManager.setAlarmClock(clockInfo, pendingIntent);
-
+            long triggerAtMillis = reminderTime.getTimeInMillis();
         } catch (ParseException e) {
             e.printStackTrace();
+            return;
+        }
+        */
+
+        // 2. 测试逻辑（新增）：当前时间 + 5秒
+        long triggerAtMillis = System.currentTimeMillis() + 5000;
+
+        // ================= 测试修改结束 =================
+
+        Intent intent = new Intent(context, ActivityReminderReceiver.class);
+        intent.putExtra("USER_ID", userId);
+        intent.putExtra("ACTIVITY_ID", activity.getId());
+        intent.putExtra("ACTIVITY_TITLE", activity.getTitle());
+        intent.putExtra("ACTIVITY_TIME", activity.getTime());
+
+        PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                context,
+                activity.getId(),
+                intent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+        );
+
+        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+
+        if (alarmManager != null) {
+            // 使用 RTC_WAKEUP，为了测试尽量准时，虽然是“非精确”模式，
+            // 但在App在前台运行时，5秒通常是很准的。
+            alarmManager.set(
+                    AlarmManager.RTC_WAKEUP,
+                    triggerAtMillis,
+                    pendingIntent
+            );
+
+            // 弹个Toast告诉你定时器设好了，方便调试
+            Toast.makeText(context, "已设置：5秒后触发测试通知", Toast.LENGTH_SHORT).show();
         }
     }
 
-    // 取消提醒
     public static void cancelReminder(Context context, int activityId) {
         Intent intent = new Intent(context, ActivityReminderReceiver.class);
         PendingIntent pendingIntent = PendingIntent.getBroadcast(
@@ -74,12 +78,13 @@ public class ReminderUtils {
 
         if (pendingIntent != null) {
             AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-            alarmManager.cancel(pendingIntent);
+            if (alarmManager != null) {
+                alarmManager.cancel(pendingIntent);
+            }
             pendingIntent.cancel();
         }
     }
 
-    // 批量恢复用户收藏活动的提醒（如开机后）
     public static void restoreReminders(Context context, String userId) {
         DBManager dbManager = new DBManager(context);
         for (ActivityBean activity : dbManager.getFavoriteActivities(userId)) {
