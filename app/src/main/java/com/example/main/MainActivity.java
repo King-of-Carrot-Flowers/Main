@@ -13,12 +13,14 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.CalendarView;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Locale;
@@ -32,6 +34,9 @@ public class MainActivity extends AppCompatActivity {
     private String currentUserId;
     private List<ActivityBean> activityBeanList;
 
+    private String selectedTag = null;
+
+    private List<Button> tagButtons = new ArrayList<>();
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -66,6 +71,10 @@ public class MainActivity extends AppCompatActivity {
         currentUserId = getIntent().getStringExtra("USER_ID");
 
         dbManager = new DBManager(this);
+
+
+        setupTagButtons();
+
         new Thread(() -> loadActivitiesByDate(currentDate)).start();
 
         calendarView.setOnDateChangeListener((view, year, month, dayOfMonth) -> {
@@ -87,7 +96,10 @@ public class MainActivity extends AppCompatActivity {
 
     private void loadActivitiesByDate(String date) {
         new Thread(() -> {
-            activityBeanList = dbManager.getActivityByDate(date);
+//            activityBeanList = dbManager.getActivityByDate(date);
+
+            final String finalTag = selectedTag; // 捕获状态变量到 final 变量供子线程使用
+            activityBeanList = dbManager.getActivityByDateAndTag(date, finalTag);
             new Handler(Looper.getMainLooper()).post(() -> {
                 if (activityBeanList.isEmpty()) {
                     String[] emptyTip = new String[]{"当前日期暂无活动"};
@@ -108,6 +120,46 @@ public class MainActivity extends AppCompatActivity {
         }).start();
     }
 
+    private void setupTagButtons() {
+        Button btnDeyu = findViewById(R.id.btn_tag_deyu);
+        Button btnMeiyu = findViewById(R.id.btn_tag_meiyu);
+        Button btnLaoyu = findViewById(R.id.btn_tag_laoyu);
+        Button btnSafety = findViewById(R.id.btn_tag_safety);
+        Button btnOther = findViewById(R.id.btn_tag_other);
+        Button btnAll = findViewById(R.id.btn_tag_all);
+
+        tagButtons.add(btnDeyu);
+        tagButtons.add(btnMeiyu);
+        tagButtons.add(btnLaoyu);
+        tagButtons.add(btnSafety);
+        tagButtons.add(btnOther);
+        tagButtons.add(btnAll);
+
+        // 设置监听器，并把按钮自身传递过去
+        btnDeyu.setOnClickListener(v -> handleTagSelection("德育", (Button) v));
+        btnMeiyu.setOnClickListener(v -> handleTagSelection("美育", (Button) v));
+        btnLaoyu.setOnClickListener(v -> handleTagSelection("劳育", (Button) v));
+        btnSafety.setOnClickListener(v -> handleTagSelection("安全", (Button) v));
+        btnOther.setOnClickListener(v -> handleTagSelection("其他", (Button) v));
+        btnAll.setOnClickListener(v -> handleTagSelection(null, (Button) v));
+        // 默认选中“全选”按钮
+        btnAll.setSelected(true);
+    }
+
+    // 【新增方法】：处理标签选择逻辑
+    private void handleTagSelection(String tag, Button selectedButton) {
+        // 1. 重置所有按钮的状态为“未选中”
+        for (Button button : tagButtons) {
+            button.setSelected(false);
+        }
+
+        // 2. 将被点击的按钮设为“选中”状态
+        selectedButton.setSelected(true);
+
+        // 3. 执行原有的筛选逻辑
+        selectedTag = tag;
+        loadActivitiesByDate(currentDate);
+    }
     @Override
     protected void onResume() {
         super.onResume();

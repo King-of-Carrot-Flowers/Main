@@ -9,11 +9,12 @@ public class ActivityBean {
     private String organizer;
     private int maxPeople;
 
+    private String tag;
     // 构造方法
     public ActivityBean() {}
 
     public ActivityBean(int id, String title, String type, String time, String location,
-                    String description, String organizer, int maxPeople) {
+                    String description, String organizer, int maxPeople,String tag) {
         this.id = id;
         this.title = title;
         this.type = type;
@@ -22,6 +23,7 @@ public class ActivityBean {
         this.description = description;
         this.organizer = organizer;
         this.maxPeople = maxPeople;
+        this.tag = tag;
     }
 
     // Getter和Setter方法
@@ -41,5 +43,7 @@ public class ActivityBean {
     public void setOrganizer(String organizer) { this.organizer = organizer; }
     public int getMaxPeople() { return maxPeople; }
     public void setMaxPeople(int maxPeople) { this.maxPeople = maxPeople; }
+    public String getTag() { return tag; }
+    public void setTag(String tag) { this.tag = tag; }
 }
 
