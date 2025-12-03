@@ -6,7 +6,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical">
 
-    <!-- 导航条（全屏无缝隙） -->
+    <!-- 导航条 -->
     <androidx.appcompat.widget.Toolbar
         android:id="@+id/toolbar"
         android:layout_width="match_parent"
@@ -19,13 +19,7 @@
         android:paddingTop="24dp"
         android:paddingBottom="24dp"/>
 
-    <!-- activity_detail.xml 导航条 -->
-<!--    <androidx.appcompat.widget.Toolbar-->
-<!--        android:id="@+id/toolbar"-->
-<!--        style="@style/CustomToolbar"-->
-<!--        android:title="活动详情"/>-->
-
-    <!-- 滚动内容区域（保留padding） -->
+    <!-- 滚动内容区域 -->
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -98,11 +92,12 @@
                 android:lineSpacingMultiplier="1.2"
                 android:layout_marginBottom="12dp"/>
 
-            <!-- 功能按钮 -->
+            <!-- 【已修改】功能按钮 -->
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_marginTop="20dp">
+                android:layout_marginTop="20dp"
+                android:orientation="horizontal">
 
                 <Button
                     android:id="@+id/btn_collect"
@@ -112,7 +107,7 @@
                     android:text="收藏"
                     android:backgroundTint="#FF9800"
                     android:textColor="#FFFFFF"
-                    android:layout_marginRight="8dp"/>
+                    android:layout_marginEnd="8dp"/> <!-- 使用 marginEnd 替代 marginRight -->
 
                 <Button
                     android:id="@+id/btn_apply"
@@ -122,17 +117,10 @@
                     android:text="报名参加"
                     android:backgroundTint="#005AA7"
                     android:textColor="#FFFFFF"
-                    android:layout_marginRight="8dp"/>
+                    android:layout_marginStart="8dp"/> <!-- 使用 marginStart 增加左边距 -->
 
-                <!-- 调试按钮（仅开发阶段使用） -->
-                <Button
-                    android:id="@+id/btn_debug_print"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="打印所有表格"
-                    android:backgroundTint="#005AA7"
-                    android:textColor="#FFFFFF"/>
+                <!-- 【已删除】调试按钮 -->
+
             </LinearLayout>
 
         </LinearLayout>

@@ -2,7 +2,9 @@ package com.example.main;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.content.ContextCompat;
 
+import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -20,7 +22,9 @@ public class DetailActivity extends AppCompatActivity {
     private ActivityBean activityBean;
     private String currentUserId;
     private TextView tvTitle, tvType, tvTime, tvLocation, tvOrganizer, tvApplyCount, tvDescription;
-    private Button btnCollect, btnApply, btnDebugPrint;
+
+    // 【修改点1】移除 btnDebugPrint 的声明
+    private Button btnCollect, btnApply;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -29,18 +33,15 @@ public class DetailActivity extends AppCompatActivity {
 
         Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setTitle("活动详情");
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+            getSupportActionBar().setTitle("活动详情");
+        }
 
         activityId = getIntent().getIntExtra("ACTIVITY_ID", -1);
         currentUserId = getIntent().getStringExtra("USER_ID");
-        if (activityId == -1) {
-            Toast.makeText(this, "参数错误", Toast.LENGTH_SHORT).show();
-            finish();
-            return;
-        }
-        if (currentUserId == null) {
-            Toast.makeText(this, "请先登录", Toast.LENGTH_SHORT).show();
+        if (activityId == -1 || currentUserId == null) {
+            Toast.makeText(this, "参数错误或用户未登录", Toast.LENGTH_SHORT).show();
             finish();
             return;
         }
@@ -67,20 +68,19 @@ public class DetailActivity extends AppCompatActivity {
         tvDescription = findViewById(R.id.tv_description);
         btnCollect = findViewById(R.id.btn_collect);
         btnApply = findViewById(R.id.btn_apply);
-        btnDebugPrint = findViewById(R.id.btn_debug_print);
+
+        // 【修改点2】移除对 btn_debug_print 的 findViewById 调用
+        // btnDebugPrint = findViewById(R.id.btn_debug_print);
     }
 
-    // 【新增方法】判断活动是否已结束
     private boolean isActivityEnded(String activityTimeStr) {
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault());
         try {
             Date activityDate = sdf.parse(activityTimeStr);
-            Date currentDate = new Date();
-            // 如果当前时间 晚于 活动时间，就是结束了
-            return currentDate.after(activityDate);
+            return new Date().after(activityDate);
         } catch (Exception e) {
             e.printStackTrace();
-            return false; // 解析失败默认没结束
+            return false;
         }
     }
 
@@ -98,8 +98,6 @@ public class DetailActivity extends AppCompatActivity {
             boolean isApplied = dbManager.isUserApplied(currentUserId, activityId);
             boolean isCollected = dbManager.isUserCollected(currentUserId, activityId);
             boolean isFull = currentPeople >= activityBean.getMaxPeople();
-
-            // 【修改点 1】检测是否已结束
             boolean isEnded = isActivityEnded(activityBean.getTime());
 
             new Handler(Looper.getMainLooper()).post(() -> {
@@ -111,11 +109,7 @@ public class DetailActivity extends AppCompatActivity {
                 tvApplyCount.setText("报名情况：" + currentPeople + "/" + activityBean.getMaxPeople());
                 tvDescription.setText("活动详情：\n" + activityBean.getDescription());
 
-                btnCollect.setText(isCollected ? "已收藏" : "收藏");
-                btnCollect.setBackgroundTintList(getResources().getColorStateList(
-                        isCollected ? android.R.color.darker_gray : R.color.orange));
-
-                // 【修改点 2】传递 isEnded 参数
+                updateCollectButtonStatus(isCollected);
                 updateApplyButtonStatus(isFull, isApplied, isEnded);
 
                 btnCollect.setEnabled(true);
@@ -123,27 +117,34 @@ public class DetailActivity extends AppCompatActivity {
         }).start();
     }
 
-    // 【修改点 3】增加 isEnded 参数，并处理 UI
+    private void updateCollectButtonStatus(boolean isCollected) {
+        if (isCollected) {
+            btnCollect.setText("已收藏");
+            // 假设您在 colors.xml 中定义了灰色
+            btnCollect.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, android.R.color.darker_gray)));
+        } else {
+            btnCollect.setText("收藏");
+            // 假设您在 colors.xml 中定义了橙色
+            btnCollect.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.orange)));
+        }
+    }
+
     private void updateApplyButtonStatus(boolean isFull, boolean isApplied, boolean isEnded) {
         if (isEnded) {
-            // 如果活动结束，最高优先级，禁用按钮并变灰
             btnApply.setText("活动已结束");
-            btnApply.setBackgroundTintList(getResources().getColorStateList(android.R.color.darker_gray));
+            btnApply.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, android.R.color.darker_gray)));
             btnApply.setEnabled(false);
         } else if (isApplied) {
-            // 已报名 -> 红色
             btnApply.setText("取消报名");
-            btnApply.setBackgroundTintList(getResources().getColorStateList(R.color.red));
+            btnApply.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.red)));
             btnApply.setEnabled(true);
         } else if (isFull) {
-            // 人数已满 -> 灰色
             btnApply.setText("人数已满");
-            btnApply.setBackgroundTintList(getResources().getColorStateList(android.R.color.darker_gray));
+            btnApply.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, android.R.color.darker_gray)));
             btnApply.setEnabled(false);
         } else {
-            // 可报名 -> 蓝色
             btnApply.setText("报名参加");
-            btnApply.setBackgroundTintList(getResources().getColorStateList(R.color.blue));
+            btnApply.setBackgroundTintList(ColorStateList.valueOf(ContextCompat.getColor(this, R.color.blue)));
             btnApply.setEnabled(true);
         }
     }
@@ -151,11 +152,9 @@ public class DetailActivity extends AppCompatActivity {
     private void setButtonListeners() {
         btnCollect.setOnClickListener(v -> new Thread(() -> {
             if (activityBean == null) return;
-            // ... (收藏逻辑保持不变) ...
-            // 省略这部分代码，和你原来的一样即可
+
             boolean isCollected = dbManager.isUserCollected(currentUserId, activityId);
             boolean dbSuccess;
-            boolean reminderSetSuccess = false;
 
             if (isCollected) {
                 dbSuccess = dbManager.uncollectActivity(currentUserId, activityId);
@@ -165,24 +164,19 @@ public class DetailActivity extends AppCompatActivity {
             } else {
                 dbSuccess = dbManager.collectActivity(currentUserId, activityId);
                 if (dbSuccess) {
-                    reminderSetSuccess = ReminderUtils.setReminder(DetailActivity.this, currentUserId, activityBean);
+                    ReminderUtils.setReminder(DetailActivity.this, currentUserId, activityBean);
                 }
             }
 
-            final boolean finalReminderSetSuccess = reminderSetSuccess;
-
             if (dbSuccess) {
+                // 回到主线程更新UI
                 new Handler(Looper.getMainLooper()).post(() -> {
-                    btnCollect.setText(isCollected ? "收藏" : "已收藏");
-                    btnCollect.setBackgroundTintList(getResources().getColorStateList(
-                            isCollected ? R.color.orange : android.R.color.darker_gray));
-
+                    updateCollectButtonStatus(!isCollected);
                     Toast.makeText(DetailActivity.this,
                             isCollected ? "取消收藏成功" : "收藏成功",
                             Toast.LENGTH_SHORT).show();
-
-                    if (!isCollected && finalReminderSetSuccess) {
-                        Toast.makeText(DetailActivity.this, "已设置提醒", Toast.LENGTH_SHORT).show();
+                    if (!isCollected) {
+                        Toast.makeText(DetailActivity.this, "已为您设置活动提醒", Toast.LENGTH_SHORT).show();
                     }
                 });
             }
@@ -191,10 +185,9 @@ public class DetailActivity extends AppCompatActivity {
         btnApply.setOnClickListener(v -> new Thread(() -> {
             if (activityBean == null) return;
 
-            // 【修改点 4】点击时的双重校验
             if (isActivityEnded(activityBean.getTime())) {
                 new Handler(Looper.getMainLooper()).post(() ->
-                        Toast.makeText(DetailActivity.this, "活动已结束，无法报名", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(DetailActivity.this, "活动已结束，无法操作", Toast.LENGTH_SHORT).show()
                 );
                 return;
             }
@@ -203,27 +196,28 @@ public class DetailActivity extends AppCompatActivity {
             int currentPeople = dbManager.getCurrentPeopleByActivityId(activityId);
             boolean isFull = currentPeople >= activityBean.getMaxPeople();
 
-            if (isFull && !isApplied) return;
-
-            boolean success;
-            if (isApplied) {
-                success = dbManager.cancelApplyActivity(currentUserId, activityId);
-                currentPeople--;
-            } else {
-                success = dbManager.applyActivity(currentUserId, activityId);
-                currentPeople++;
+            if (!isApplied && isFull) {
+                new Handler(Looper.getMainLooper()).post(() ->
+                        Toast.makeText(DetailActivity.this, "人数已满，无法报名", Toast.LENGTH_SHORT).show()
+                );
+                return;
             }
 
-            if (success) {
-                final int finalCurrentPeople = currentPeople;
-                // 注意这里也要重新获取一下 isEnded 状态（虽然极短时间内不会变，但为了逻辑严谨）
-                final boolean finalIsEnded = isActivityEnded(activityBean.getTime());
+            boolean dbSuccess;
+            if (isApplied) {
+                dbSuccess = dbManager.cancelApplyActivity(currentUserId, activityId);
+            } else {
+                dbSuccess = dbManager.applyActivity(currentUserId, activityId);
+            }
+
+            if (dbSuccess) {
+                // 重新获取最新报名人数
+                int newCurrentPeople = dbManager.getCurrentPeopleByActivityId(activityId);
+                boolean newIsApplied = !isApplied;
 
                 new Handler(Looper.getMainLooper()).post(() -> {
-                    tvApplyCount.setText("报名情况：" + finalCurrentPeople + "/" + activityBean.getMaxPeople());
-                    // 【修改点 5】更新按钮状态时传入 finalIsEnded
-                    updateApplyButtonStatus(finalCurrentPeople >= activityBean.getMaxPeople(), !isApplied, finalIsEnded);
-
+                    tvApplyCount.setText("报名情况：" + newCurrentPeople + "/" + activityBean.getMaxPeople());
+                    updateApplyButtonStatus(newCurrentPeople >= activityBean.getMaxPeople(), newIsApplied, false);
                     Toast.makeText(DetailActivity.this,
                             isApplied ? "取消报名成功" : "报名成功",
                             Toast.LENGTH_SHORT).show();
@@ -231,19 +225,8 @@ public class DetailActivity extends AppCompatActivity {
             }
         }).start());
 
-        btnDebugPrint.setOnClickListener(v -> printAllTableData());
+        // 【修改点3】移除对 btnDebugPrint 的监听器设置
     }
 
-    private void printAllTableData() {
-        new Thread(() -> {
-            dbManager.printUsersTable();
-            dbManager.printActivitiesTable();
-            dbManager.printRegistrationsTable();
-            dbManager.printFavoritesTable();
-            dbManager.printRemindersTable();
-            new Handler(Looper.getMainLooper()).post(() ->
-                    Toast.makeText(this, "已打印所有表数据到Logcat", Toast.LENGTH_SHORT).show()
-            );
-        }).start();
-    }
+    // 【修改点4】移除 printAllTableData() 这个方法
 }
